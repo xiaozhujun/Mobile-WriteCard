@@ -36,19 +36,6 @@ public class MyFileManager extends ListActivity {
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.fileselect);
 		mPath=(TextView) findViewById(R.id.mPath);
-		Button buttonConfirm=(Button) findViewById(R.id.buttonConfirm);
-		buttonConfirm.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				/*Intent data=new Intent(MyFileManager.this,ReadFileActivity.class);
-				Bundle bundle=new Bundle();
-				bundle.putString("file", curPath);
-				Log.e("curPath++",curPath);
-				data.putExtras(bundle);
-				setResult(2,data);
-				finish();*/
-			}
-		});
 		Button buttonCancle=(Button) findViewById(R.id.buttonCancle);
 		buttonCancle.setOnClickListener(new OnClickListener() {
 			@Override
@@ -136,14 +123,9 @@ public class MyFileManager extends ListActivity {
 			    	bundle.putString("ctype","01");
 					data.putExtras(bundle);
 					setResult(2,data);
-			    	finish();
-	    		
-	    		
-	    		
-	    		
-	    		
+			    	finish();	
 	    	}
-	     else{
+	         else{
 	    	 bundle.putStringArray("filecontent", null);
 	    	 data.putExtras(bundle);
 			 setResult(2,data);

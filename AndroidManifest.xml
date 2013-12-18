@@ -24,7 +24,7 @@
             android:name="com.csei.writecard.ReadFileActivity">  
         </activity>
         <activity
-            android:name="com.csei.writecard.MyFileManager">  
+            android:name="com.csei.writecard.MyFileManager" android:theme="@android:style/Theme.Dialog">  
         </activity>
         <service android:name="com.example.service.RFIDService" ></service>
     </application>

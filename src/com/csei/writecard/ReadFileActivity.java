@@ -19,6 +19,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
+import android.widget.TextView;
 public class ReadFileActivity extends Activity implements OnClickListener {
    public static final int FILE_RESULT_CODE=1;
    private Button btn;
@@ -34,6 +35,8 @@ public class ReadFileActivity extends Activity implements OnClickListener {
 	public static int authentication_flag = 0;		//认证状态  0为认证失败和未认证  1为认证成功
 	public static String TAG= "M1card";
 	String ctype="";
+	private TextView showalert;
+	int canWriteCard;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -41,12 +44,15 @@ public class ReadFileActivity extends Activity implements OnClickListener {
 		btn=(Button) this.findViewById(R.id.btn);
 		writecard=(Button) this.findViewById(R.id.writecard);
 		showTextContent=(ListView) this.findViewById(R.id.showfilecontent);
+		showalert=(TextView) this.findViewById(R.id.showalert);
 		btn.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
+				showalert.setVisibility(View.GONE);
 				Intent intent=new Intent(ReadFileActivity.this,MyFileManager.class);
-				startActivityForResult(intent,FILE_RESULT_CODE);	
+				startActivityForResult(intent,FILE_RESULT_CODE);
+				canWriteCard=1;
 			}
 		});
 		writecard.setOnClickListener(this);
@@ -58,6 +64,7 @@ public class ReadFileActivity extends Activity implements OnClickListener {
 			if(data!=null&&(bundle=data.getExtras())!=null){             
 				String ss=bundle.getString("filecontent");
 				ctype=bundle.getString("ctype");
+				if(ss!=null){
 				final String[] s1=ss.split(" ");
 				for(int i=0;i<s1.length;i++){
 					Log.e("yyyy",s1[i]);
@@ -82,13 +89,17 @@ public class ReadFileActivity extends Activity implements OnClickListener {
 						}
 					 }); 
 				}	   
+		}else{
+			showalert.setText("对不起！没有选择正确的文件!"); 
 		}
 		}	
+		}
 	}
 	@Override
 	public void onClick(View v) {
 		// TODO Auto-generated method stub
 		  Log.e("writecard",writedata);
+		  if(canWriteCard==1){
 		  Intent sendToservice = new Intent(ReadFileActivity.this,RFIDService.class);
 			if(ctype.equals("00")){
 		    sendToservice.putExtra("cardType", "0x01");
@@ -97,7 +108,10 @@ public class ReadFileActivity extends Activity implements OnClickListener {
 			}
 			sendToservice.putExtra("data", writedata);
 			sendToservice.putExtra("activity", activity);
-			startService(sendToservice); 
+			startService(sendToservice);
+		  }else{
+			  showalert.setText("请选择要写入的文件");
+		  }
 	}
 	@Override
 	protected void onResume() {
@@ -127,7 +141,6 @@ public class ReadFileActivity extends Activity implements OnClickListener {
 		super.onDestroy();
 	}
 	private class MyBroadcast extends BroadcastReceiver {
-
 		@Override
 		public void onReceive(Context context, Intent intent) {
 		

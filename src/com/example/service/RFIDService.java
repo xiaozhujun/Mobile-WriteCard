@@ -9,6 +9,7 @@ import java.util.regex.Pattern;
 import com.example.psam_demo.PSAM;
 import com.example.tools.Tools;
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -71,6 +72,7 @@ public class RFIDService extends Service {
     String devnum="";
     String area="";
     String aid="";
+    String code="";
 	private Handler mhandler = new Handler() {
 		public void handleMessage(android.os.Message msg) {
 			skip = true;
@@ -206,9 +208,20 @@ public class RFIDService extends Service {
 			return authresult;
 		}
 		public String writeCard(String rec,String sector,String block,String write_data){
+			String s=" ";
 			byte[] handlerCMD;
 			String write_data_src=write_data.toString().trim();
+			Log.e("write_data_src",write_data_src+"");
 			byte[] b=write_data_src.getBytes();
+			Log.e("b.length",b.length+"");
+			if(b.length!=16){           //当b的长度不足16位时,在后面补0
+			int diff=16-b.length; 
+			for(int i=1;i<diff;i++){
+				s+=" ";        
+			}
+			write_data_src+=s;
+			b=write_data_src.getBytes();
+			}
 			String bb=Tools.Bytes2HexString(b, b.length);
 			String sector_str =sector.toString().trim();
 			int sector_int = Integer.parseInt(sector_str);                //Sector
@@ -231,6 +244,7 @@ public class RFIDService extends Service {
 			String write_data_buffer = value_str + bb ;
 			byte[] write_buffer = Tools.HexString2Bytes(write_data_buffer);
 			 Log.e("bb",bb);
+			 Log.e("bb.length",bb.length()+"");
 			 Log.e("value_str",value_str);
 			 Log.e("write_data_buffer",write_data_buffer);
 			handlerCMD = mSerialPort.rf_write_cmd(write_buffer);
@@ -380,6 +394,7 @@ public class RFIDService extends Service {
 	    cardType = intent.getStringExtra("cardType");
 	    ss=intent.getStringExtra("data");       //接受到的数据
 	    String[] d=ss.split(",");
+	        if(cardType!=null){
 	    	if(cardType.equals("0x01")){
 	        uname=d[1];
 	    	uid=d[2];
@@ -390,6 +405,9 @@ public class RFIDService extends Service {
 	    	devnum=d[3];
 	    	aid=d[4];
 	    	}
+	        }else{
+	         Log.e("无卡","无卡");
+	        }
 		if (intent.getStringExtra("activity") != null) {
 			activity = intent.getStringExtra("activity");
 		}
@@ -408,9 +426,12 @@ public class RFIDService extends Service {
 		if (cardType.equals("0x01")) {
 			if(count==1){
 				val="01";
-				writedata="0x01"+uid+rid+uname+"0";
+				writedata="x1"+uid+rid+uname;
 			}else if(count==2){
 				val="02";
+				if(rolename.length()>5){
+					rolename=rolename.substring(rolename.length()-5, rolename.length());
+				}
 				writedata=rolename+"0";
 			}
 			startSearchCard();
@@ -418,10 +439,10 @@ public class RFIDService extends Service {
 		} else if (cardType.equals("0x02")) {
 			if(count==1){
 				val="01";
-				writedata=devnum+aid+"000000";
+				writedata=devnum+aid;
 			}else if(count==2){
 				val="02";
-				writedata=aid+area+"000";
+				writedata=aid+area;
 			}
 			startSearchCard();
 			readcardflag="02";

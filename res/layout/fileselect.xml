@@ -15,31 +15,28 @@
     android:textColor="@drawable/blue"
   >
   </TextView>
-  <ListView 
-    android:id="@android:id/list"
-    android:layout_width="fill_parent"
-    android:layout_height="330dp"
-  >
+
+  <ListView
+      android:id="@android:id/list"
+      android:layout_width="fill_parent"
+      android:layout_height="330dp" 
+      android:gravity="center">
+
   </ListView>
-  <LinearLayout 
-  	android:gravity="center"
-    android:layout_width="wrap_content"
+  <RelativeLayout 
+    android:layout_width="fill_parent"
 	android:layout_height="wrap_content"
 	android:orientation="horizontal"
 	android:background="@drawable/white"
 	>
-	<Button     
-    android:id="@+id/buttonConfirm"  
-    android:layout_width="125dp"    
-    android:layout_height="fill_parent"    
-    android:text="确定"  
-    />
+	
     <Button     
     android:id="@+id/buttonCancle"  
     android:layout_width="125px"    
-    android:layout_height="fill_parent"    
+    android:layout_height="fill_parent" 
+    android:layout_alignParentRight="true"  
     android:text="取消"  
     />
 	
-  </LinearLayout>
+  </RelativeLayout>
 </LinearLayout>
