@@ -47,7 +47,7 @@
             android:text="" />
     </LinearLayout>
     <Button
-        android:id="@+id/btn"
+        android:id="@+id/selectfile"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:text="选择文件" />

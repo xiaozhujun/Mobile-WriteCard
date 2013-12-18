@@ -5,7 +5,6 @@ import com.csei.adapter.HighLightAdapter;
 import com.example.service.RFIDService;
 import com.example.writecard.R;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -22,8 +21,9 @@ import android.widget.SimpleAdapter;
 import android.widget.TextView;
 public class ReadFileActivity extends Activity implements OnClickListener {
    public static final int FILE_RESULT_CODE=1;
-   private Button btn;
+   private Button selectfile;
    private Button writecard;
+   private Button backbutton;
    private ListView showTextContent;
    ArrayList<HashMap<String, Object>> listItem=new ArrayList<HashMap<String,Object>>();	  
    HighLightAdapter highLightAdapter;
@@ -41,11 +41,12 @@ public class ReadFileActivity extends Activity implements OnClickListener {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.readfile);
-		btn=(Button) this.findViewById(R.id.btn);
+		selectfile=(Button) this.findViewById(R.id.selectfile);
 		writecard=(Button) this.findViewById(R.id.writecard);
 		showTextContent=(ListView) this.findViewById(R.id.showfilecontent);
 		showalert=(TextView) this.findViewById(R.id.showalert);
-		btn.setOnClickListener(new OnClickListener() {
+		backbutton=(Button) this.findViewById(R.id.backbutton);
+		selectfile.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
@@ -53,6 +54,14 @@ public class ReadFileActivity extends Activity implements OnClickListener {
 				Intent intent=new Intent(ReadFileActivity.this,MyFileManager.class);
 				startActivityForResult(intent,FILE_RESULT_CODE);
 				canWriteCard=1;
+			}
+		});
+		backbutton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				backbutton.setBackgroundResource(R.drawable.btn_back_active);
+				finish();
 			}
 		});
 		writecard.setOnClickListener(this);

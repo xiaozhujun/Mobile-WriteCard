@@ -3,12 +3,9 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
 import com.csei.adapter.MyAdapter;
-import com.csei.analysexml.DbModel;
 import com.csei.analysexml.ParseXml;
 import com.example.writecard.R;
-
 import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.content.Intent;

@@ -5,11 +5,9 @@ import java.io.OutputStream;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.regex.Pattern;
-
 import com.example.psam_demo.PSAM;
 import com.example.tools.Tools;
 import android.annotation.SuppressLint;
-import android.app.AlertDialog;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
