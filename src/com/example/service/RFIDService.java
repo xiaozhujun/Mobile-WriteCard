@@ -395,9 +395,7 @@ public class RFIDService extends Service {
 	    	devnum=d[3];
 	    	aid=d[4];
 	    	}
-	        }else{
-	         Log.e("无卡","无卡");
-	        }
+	        
 		if (intent.getStringExtra("activity") != null) {
 			activity = intent.getStringExtra("activity");
 		}
@@ -405,6 +403,9 @@ public class RFIDService extends Service {
 		re="";
 		readcount=2;
 		startSearch(cardType,1);
+	    }else{
+		Log.e("无卡","无卡");
+		}
 		return 0;
 	}
 	private void startSearch(String cardType,int count) {

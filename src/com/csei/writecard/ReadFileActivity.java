@@ -52,7 +52,7 @@ public class ReadFileActivity extends Activity implements OnClickListener {
 				// TODO Auto-generated method stub
 				Intent intent=new Intent(ReadFileActivity.this,MyFileManager.class);
 				startActivityForResult(intent,FILE_RESULT_CODE);
-				canWriteCard=1;
+				
 			}
 		});
 		backbutton.setOnClickListener(new OnClickListener() {
@@ -89,6 +89,7 @@ public class ReadFileActivity extends Activity implements OnClickListener {
 								int position, long id) {
 							// TODO Auto-generated method stub
 						     //高亮显示，然后将相应的信息付给全局变量，之后在button.onclick下操作
+							canWriteCard=1;
 							cur_pos=position;
 		                    v.setSelected(true);           
 						    Log.e("poi",s1[cur_pos]);
