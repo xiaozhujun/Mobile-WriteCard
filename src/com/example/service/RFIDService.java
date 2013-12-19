@@ -112,31 +112,15 @@ public class RFIDService extends Service {
 					}
 				readcount--;
 				if(readcount!=0&&readcount>0){
-					startSearch(cardType,2);	
+					startSearch(cardType,2);
 				}
-				/*Log.e(TAG, rec);
-				 byte temp[] = Tools.HexString2Bytes(rec);
-				 byte[] receive_buffer = mSerialPort.resolveDataFromDevice(temp);
-				Log.e("read_cmd receive", Tools.Bytes2HexString(receive_buffer, receive_buffer.length));
-				Log.e("read_cmd arg", Tools.Bytes2HexString(temp, temp.length));
-				System.out.println(receive_buffer + "待转化的接受数据");*/
-				/*if (receive_buffer != null) {
-					// 返回读到的数据给请求者
-					re+=Tools.Bytes2HexString(receive_buffer, receive_buffer.length);
-					readcount--;
-					if(readcount!=0&&readcount>0){
-				    Log.e("readcount",readcount+"");
-					Log.e("hahaha","测试");
-					startSearch(cardType,2);	
-					}	
-				}*/
-				
-				/*if(readcount==0){
-				Intent serviceIntent = new Intent();
-				serviceIntent.setAction(activity);
-				serviceIntent.putExtra("result",re);
-				sendBroadcast(serviceIntent);
-				}*/
+				if(readcount==0){
+					run=false;
+					Intent serviceIntent = new Intent();
+					serviceIntent.setAction(activity);
+					serviceIntent.putExtra("result","写卡成功!");
+					sendBroadcast(serviceIntent);
+					}
 			default:
 				break;
 			}
@@ -255,9 +239,9 @@ public class RFIDService extends Service {
 			int write_data_flag = mSerialPort.rf_check_data(Tools.HexString2Bytes(rec));
 			Log.e("w1",write_data_flag+"");
 			if(write_data_flag != 0){
-				Toast.makeText(getApplicationContext(), "write fail", Toast.LENGTH_SHORT).show();
+				/*re="write fail";*/
 			}else{
-				Toast.makeText(getApplicationContext(), "write success", Toast.LENGTH_SHORT).show();
+				re="write success";
 			}
 			return block;
 			
@@ -269,6 +253,7 @@ public class RFIDService extends Service {
 			super.run();
 			while (run) {
 				/*if (!skip) {*/
+				Log.e("hh","1");
 					int size;
 					try {
 						byte[] buffer = new byte[128];
@@ -277,6 +262,7 @@ public class RFIDService extends Service {
 						size = mInputStream.read(buffer);
 						if (size > 0) {
 							// 取消寻卡
+							Log.e("hh","2");
 							data = Tools.Bytes2HexString(buffer, size);
 							data_buffer.append(data);
 							// 设置数据超时为50ms，发送数据到activity
@@ -287,10 +273,12 @@ public class RFIDService extends Service {
 									if (data_buffer != null
 											&& data_buffer.length() != 0
 											&& activity != null) {
+										Log.e("hh","3");
 										// 数据发送给mhandler，交给handler处理
 										data = null;
 										int strlen = data_buffer.length();
 										if (strlen >= 10) {
+											Log.e("hh","4");
 											String dataLen = data_buffer
 													.substring(2, 6); // 取得数据包的长度
 											valid = Tools.checkData(dataLen,
@@ -385,6 +373,10 @@ public class RFIDService extends Service {
 		/* Create a receiving thread */
 		mReadThread = new ReadThread();
 		mReadThread.start(); // 开启读线程
+		if(readcount==2){
+			run=true;
+		}
+		Log.e("readcount",readcount+""+run);
 		Log.e(TAG, "start thread");
 	}
 	@Override
@@ -437,7 +429,7 @@ public class RFIDService extends Service {
 		} else if (cardType.equals("0x02")) {
 			if(count==1){
 				val="01";
-				writedata=devnum+aid;
+				writedata="x2"+devnum+aid;
 			}else if(count==2){
 				val="02";
 				writedata=aid+area;

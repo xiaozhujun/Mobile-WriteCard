@@ -30,7 +30,9 @@
     <ListView
         android:id="@+id/showfilecontent"
         android:layout_width="match_parent"
-        android:layout_height="280dp">
+        android:layout_height="280dp"
+        android:drawSelectorOnTop="false"
+        >
     </ListView>
      <LinearLayout
         android:layout_width="match_parent"

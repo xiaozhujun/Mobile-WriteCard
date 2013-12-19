@@ -43,8 +43,8 @@ public final class R {
     public static final class drawable {
         public static final int back01=0x7f020000;
         public static final int back02=0x7f020001;
-        public static final int black=0x7f020018;
-        public static final int blue=0x7f020019;
+        public static final int black=0x7f02001a;
+        public static final int blue=0x7f02001b;
         public static final int btn_back=0x7f020002;
         public static final int btn_back_active=0x7f020003;
         public static final int checked=0x7f020004;
@@ -58,15 +58,17 @@ public final class R {
         public static final int inspect4=0x7f02000c;
         public static final int inspect5=0x7f02000d;
         public static final int item=0x7f02000e;
-        public static final int listview_selected=0x7f02000f;
-        public static final int loader_frame_1=0x7f020010;
-        public static final int loader_frame_2=0x7f020011;
-        public static final int loader_frame_3=0x7f020012;
-        public static final int loader_frame_4=0x7f020013;
-        public static final int loader_frame_5=0x7f020014;
-        public static final int loader_frame_6=0x7f020015;
-        public static final int other=0x7f020017;
-        public static final int white=0x7f020016;
+        public static final int list_bg=0x7f02000f;
+        public static final int listview_selected=0x7f020010;
+        public static final int loader_frame_1=0x7f020011;
+        public static final int loader_frame_2=0x7f020012;
+        public static final int loader_frame_3=0x7f020013;
+        public static final int loader_frame_4=0x7f020014;
+        public static final int loader_frame_5=0x7f020015;
+        public static final int loader_frame_6=0x7f020016;
+        public static final int other=0x7f020019;
+        public static final int white=0x7f020018;
+        public static final int writecard=0x7f020017;
     }
     public static final class id {
         public static final int ItemImage=0x7f09000c;
@@ -130,5 +132,6 @@ public final class R {
  All customizations that are NOT specific to a particular API-level can go here. 
          */
         public static final int AppTheme=0x7f070001;
+        public static final int mProgressDialog=0x7f070002;
     }
 }

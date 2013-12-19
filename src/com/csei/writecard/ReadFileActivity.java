@@ -1,10 +1,11 @@
 package com.csei.writecard;
 import java.util.ArrayList;
 import java.util.HashMap;
-import com.csei.adapter.HighLightAdapter;
 import com.example.service.RFIDService;
 import com.example.writecard.R;
+import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -18,7 +19,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
-import android.widget.TextView;
+import android.widget.Toast;
 public class ReadFileActivity extends Activity implements OnClickListener {
    public static final int FILE_RESULT_CODE=1;
    private Button selectfile;
@@ -26,8 +27,6 @@ public class ReadFileActivity extends Activity implements OnClickListener {
    private Button backbutton;
    private ListView showTextContent;
    ArrayList<HashMap<String, Object>> listItem=new ArrayList<HashMap<String,Object>>();	  
-   HighLightAdapter highLightAdapter;
-   int cur_pos=0;
    String writedata="";
    private String activity = "com.csei.writecard.ReadFileActivity";
    private MyBroadcast myBroadcast;				//广播接收者
@@ -35,8 +34,10 @@ public class ReadFileActivity extends Activity implements OnClickListener {
 	public static int authentication_flag = 0;		//认证状态  0为认证失败和未认证  1为认证成功
 	public static String TAG= "M1card";
 	String ctype="";
-	private TextView showalert;
 	int canWriteCard;
+	private ProgressDialog shibieDialog; //识别搜索框
+	int cur_pos;
+	String[] s1;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -44,13 +45,11 @@ public class ReadFileActivity extends Activity implements OnClickListener {
 		selectfile=(Button) this.findViewById(R.id.selectfile);
 		writecard=(Button) this.findViewById(R.id.writecard);
 		showTextContent=(ListView) this.findViewById(R.id.showfilecontent);
-		showalert=(TextView) this.findViewById(R.id.showalert);
 		backbutton=(Button) this.findViewById(R.id.backbutton);
 		selectfile.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
-				showalert.setVisibility(View.GONE);
 				Intent intent=new Intent(ReadFileActivity.this,MyFileManager.class);
 				startActivityForResult(intent,FILE_RESULT_CODE);
 				canWriteCard=1;
@@ -74,7 +73,7 @@ public class ReadFileActivity extends Activity implements OnClickListener {
 				String ss=bundle.getString("filecontent");
 				ctype=bundle.getString("ctype");
 				if(ss!=null){
-				final String[] s1=ss.split(" ");
+				s1=ss.split(" ");
 				for(int i=0;i<s1.length;i++){
 					Log.e("yyyy",s1[i]);
 				final String[] s=s1[i].split(",");
@@ -90,16 +89,15 @@ public class ReadFileActivity extends Activity implements OnClickListener {
 								int position, long id) {
 							// TODO Auto-generated method stub
 						     //高亮显示，然后将相应的信息付给全局变量，之后在button.onclick下操作
-							cur_pos=position;                          
-		                    highLightAdapter=new HighLightAdapter(ReadFileActivity.this, listItem, cur_pos);
-		                    showTextContent.setAdapter(highLightAdapter);	
-						    Log.e("poi",s1[position]);
-						    writedata=s1[position];
+							cur_pos=position;
+		                    v.setSelected(true);           
+						    Log.e("poi",s1[cur_pos]);
+						    writedata=s1[cur_pos];
 						}
 					 }); 
 				}	   
 		}else{
-			showalert.setText("对不起！没有选择正确的文件!"); 
+			Toast.makeText(ReadFileActivity.this, "对不起！没有选择正确的文件!", Toast.LENGTH_SHORT).show(); 
 		}
 		}	
 		}
@@ -107,9 +105,20 @@ public class ReadFileActivity extends Activity implements OnClickListener {
 	@Override
 	public void onClick(View v) {
 		// TODO Auto-generated method stub
-		  Log.e("writecard",writedata);
+			shibieDialog = new ProgressDialog(ReadFileActivity.this, R.style.mProgressDialog);
+			shibieDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+			shibieDialog.setMessage("写卡中...");
+			/*shibieDialog.setCancelable(false);*/
+			shibieDialog.show();
 		  if(canWriteCard==1){
-		  Intent sendToservice = new Intent(ReadFileActivity.this,RFIDService.class);
+		  sendCmd(writedata);
+		  }else{
+				Toast.makeText(ReadFileActivity.this, "请选择要写入的文件", Toast.LENGTH_SHORT).show(); 
+			  shibieDialog.cancel();
+		  }
+	}
+	private void sendCmd(String writedata) {
+		Intent sendToservice = new Intent(ReadFileActivity.this,RFIDService.class);
 			if(ctype.equals("00")){
 		    sendToservice.putExtra("cardType", "0x01");
 			}else if(ctype.equals("01")){
@@ -118,16 +127,13 @@ public class ReadFileActivity extends Activity implements OnClickListener {
 			sendToservice.putExtra("data", writedata);
 			sendToservice.putExtra("activity", activity);
 			startService(sendToservice);
-		  }else{
-			  showalert.setText("请选择要写入的文件");
-		  }
 	}
 	@Override
 	protected void onResume() {
 		// TODO Auto-generated method stub
 		myBroadcast = new MyBroadcast();
 		IntentFilter filter = new IntentFilter();
-		filter.addAction("com.csei.inspect.PeopleValidateActivity");
+		filter.addAction("com.csei.writecard.ReadFileActivity");
 		registerReceiver(myBroadcast, filter); 		//注册广播接收者
 		super.onResume();
 	}
@@ -150,12 +156,31 @@ public class ReadFileActivity extends Activity implements OnClickListener {
 		super.onDestroy();
 	}
 	private class MyBroadcast extends BroadcastReceiver {
+		@SuppressLint("NewApi")
 		@Override
 		public void onReceive(Context context, Intent intent) {
-		
-			
+			String receivedata = intent.getStringExtra("result");
+			if(receivedata!=null){
+			shibieDialog.cancel();	
+			Toast.makeText(ReadFileActivity.this, receivedata, Toast.LENGTH_SHORT).show();
+			/*showTextContent.getChildAt(cur_pos).setBackgroundColor(Color.GRAY);*/
+			/*	if(showTextContent.getChildAt(cur_pos)!=null){
+			showTextContent.getChildAt(cur_pos).setSelected(false);
+			++cur_pos;
+			Log.e("cur_pos",cur_pos+"");
+			if(cur_pos==8){
+				showTextContent.setSelection(cur_pos+1);
+				cur_pos=0;
+			}
+			showTextContent.getChildAt(cur_pos).setSelected(true);
+			writedata=s1[cur_pos];
+			sendCmd(writedata);
+			}else{
+				showalert.setVisibility(View.VISIBLE);
+				showalert.setText("请选择数据!");
+			}*/
 		}
-		
+		}
 	}
     
 	
