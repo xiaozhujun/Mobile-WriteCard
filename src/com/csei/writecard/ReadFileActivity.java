@@ -1,6 +1,8 @@
 package com.csei.writecard;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Timer;
+import java.util.TimerTask;
 import com.example.service.RFIDService;
 import com.example.writecard.R;
 import android.annotation.SuppressLint;
@@ -11,6 +13,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -20,6 +24,7 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.Toast;
+@SuppressLint("HandlerLeak")
 public class ReadFileActivity extends Activity implements OnClickListener {
    public static final int FILE_RESULT_CODE=1;
    private Button selectfile;
@@ -38,6 +43,23 @@ public class ReadFileActivity extends Activity implements OnClickListener {
 	private ProgressDialog shibieDialog; //识别搜索框
 	int cur_pos;
 	String[] s1;
+	private Timer timerDialog;  //搜索框计时器
+	int f=0;                        //标识是否有卡
+	private Timer timeThread;
+	private int MSG_FLAG = 1;
+	//Dialog结束标识
+	private int MSG_OVER = 2;
+	private Handler mHandler = new Handler(){
+		@Override
+		public void handleMessage(Message msg) {
+			super.handleMessage(msg);
+			if(msg.what == MSG_FLAG){
+				
+			}else if(msg.what == MSG_OVER){
+				Toast.makeText(getApplicationContext(), "未识别到标签卡，请重试", Toast.LENGTH_SHORT).show();
+			}
+		}
+	};
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -109,8 +131,19 @@ public class ReadFileActivity extends Activity implements OnClickListener {
 			shibieDialog = new ProgressDialog(ReadFileActivity.this, R.style.mProgressDialog);
 			shibieDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
 			shibieDialog.setMessage("写卡中...");
-			/*shibieDialog.setCancelable(false);*/
+			shibieDialog.setCancelable(false);
 			shibieDialog.show();
+			timerDialog = new Timer();
+			//7秒后取消搜索
+			timerDialog.schedule(new TimerTask() {
+				@Override
+				public void run() {
+					shibieDialog.cancel();
+					Message msg = new Message();
+					msg.what = MSG_OVER;
+					mHandler.sendMessage(msg);
+				}
+			}, 7000);
 		  if(canWriteCard==1){
 		  sendCmd(writedata);
 		  }else{
@@ -132,6 +165,18 @@ public class ReadFileActivity extends Activity implements OnClickListener {
 	@Override
 	protected void onResume() {
 		// TODO Auto-generated method stub
+		timeThread = new Timer();
+		timeThread.schedule(new TimerTask() {
+			
+			@Override
+			public void run() {
+//				String timeStr = Tools.getTime();
+				Message msg = new Message();
+				msg.what = MSG_FLAG;
+				mHandler.sendMessage(msg);
+				
+			}
+		}, 0 , 1000);
 		myBroadcast = new MyBroadcast();
 		IntentFilter filter = new IntentFilter();
 		filter.addAction("com.csei.writecard.ReadFileActivity");
@@ -145,6 +190,7 @@ public class ReadFileActivity extends Activity implements OnClickListener {
 		authentication_flag = 0;
 		unregisterReceiver(myBroadcast);  //卸载广播接收者
 		super.onPause();
+		timeThread.cancel();
 		Log.e("M1CARDPAUSE", "PAUSE");  	
 	}	
 	@Override
@@ -163,6 +209,7 @@ public class ReadFileActivity extends Activity implements OnClickListener {
 			String receivedata = intent.getStringExtra("result");
 			if(receivedata!=null){
 			shibieDialog.cancel();	
+			timerDialog.cancel();
 			Toast.makeText(ReadFileActivity.this, receivedata, Toast.LENGTH_SHORT).show();
 			/*showTextContent.getChildAt(cur_pos).setBackgroundColor(Color.GRAY);*/
 			/*	if(showTextContent.getChildAt(cur_pos)!=null){
