@@ -71,6 +71,7 @@ public class MyFileManager extends ListActivity {
 	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
 	     File file=new File(paths.get(position));
+	     Log.e("0h0h",paths.get(position)+"");
 	     if(file.isDirectory()){
 	    	 Log.i("Directory","Directory");
 	    	 curPath=paths.get(position);

@@ -1,6 +1,7 @@
 package com.csei.writecard;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import com.example.service.RFIDService;
@@ -18,8 +19,10 @@ import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AbsListView;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
@@ -49,6 +52,10 @@ public class ReadFileActivity extends Activity implements OnClickListener {
 	private int MSG_FLAG = 1;
 	//Dialog结束标识
 	private int MSG_OVER = 2;
+	int lastItemIndex;
+	int totalIndex;
+	private Map<String, Object> item_map;
+	private SimpleAdapter listItemAdapter;
 	private Handler mHandler = new Handler(){
 		@Override
 		public void handleMessage(Message msg) {
@@ -103,9 +110,10 @@ public class ReadFileActivity extends Activity implements OnClickListener {
 			    	 map.put("ItemImage",R.drawable.item);
 			    	 map.put("ItemText", s[3]+":"+s[1]);
 			    	 listItem.add(map);
-			    	 SimpleAdapter listItemAdapter=new SimpleAdapter(this,listItem,R.layout.rolestable,new String[]{"ItemImage","ItemText"},new int[]{R.id.ItemImage,R.id.ItemText});
+			    	 listItemAdapter=new SimpleAdapter(this,listItem,R.layout.rolestable,new String[]{"ItemImage","ItemText"},new int[]{R.id.ItemImage,R.id.ItemText});
 					 showTextContent.setAdapter(listItemAdapter);
 					 showTextContent.setOnItemClickListener(new OnItemClickListener() {
+						@SuppressWarnings("unchecked")
 						@Override
 						public void onItemClick(AdapterView<?> parent, View v,
 								int position, long id) {
@@ -113,11 +121,27 @@ public class ReadFileActivity extends Activity implements OnClickListener {
 						     //高亮显示，然后将相应的信息付给全局变量，之后在button.onclick下操作
 							canWriteCard=1;
 							cur_pos=position;
-		                    v.setSelected(true);           
+		                    v.setSelected(true);  
 						    Log.e("poi",s1[cur_pos]);
 						    writedata=s1[cur_pos];
+						    item_map = (Map<String, Object>)parent.getItemAtPosition(position);
 						}
 					 }); 
+					 showTextContent.setOnScrollListener(new OnScrollListener() {
+						
+						@Override
+						public void onScrollStateChanged(AbsListView view, int scrollState) {
+							// TODO Auto-generated method stub
+							
+						}
+						
+						@Override
+						public void onScroll(AbsListView view, int firstVisibleItem,
+								int visibleItemCount, int totalItemCount) {
+							  lastItemIndex=firstVisibleItem+visibleItemCount;
+							  totalIndex=totalItemCount;
+						}
+					});
 				}	   
 		}else{
 			Toast.makeText(ReadFileActivity.this, "对不起！没有选择正确的文件!", Toast.LENGTH_SHORT).show(); 
@@ -211,22 +235,8 @@ public class ReadFileActivity extends Activity implements OnClickListener {
 			shibieDialog.cancel();	
 			timerDialog.cancel();
 			Toast.makeText(ReadFileActivity.this, receivedata, Toast.LENGTH_SHORT).show();
-			/*showTextContent.getChildAt(cur_pos).setBackgroundColor(Color.GRAY);*/
-			/*	if(showTextContent.getChildAt(cur_pos)!=null){
-			showTextContent.getChildAt(cur_pos).setSelected(false);
-			++cur_pos;
-			Log.e("cur_pos",cur_pos+"");
-			if(cur_pos==8){
-				showTextContent.setSelection(cur_pos+1);
-				cur_pos=0;
-			}
-			showTextContent.getChildAt(cur_pos).setSelected(true);
-			writedata=s1[cur_pos];
-			sendCmd(writedata);
-			}else{
-				showalert.setVisibility(View.VISIBLE);
-				showalert.setText("请选择数据!");
-			}*/
+			item_map.put("ItemImage", R.drawable.checked);
+			listItemAdapter.notifyDataSetChanged();
 		}
 		}
 	}
